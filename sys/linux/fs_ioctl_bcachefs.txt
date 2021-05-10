@@ -1,0 +1,49 @@
+
+# Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
+
+include <uapi/linux/fs.h>
+include <fs/bcachefs/bcachefs_ioctl.h>
+include <linux/f2fs_fs.h>
+include <fs/f2fs/f2fs.h>
+include <uapi/linux/f2fs.h>
+
+ioctl$BCH_IOCTL_DISK_ADD(fd fd, cmd const[BCH_IOCTL_DISK_ADD], arg ptr[in, bch_ioctl_disk_str])
+ioctl$BCH_IOCTL_DISK_REMOVE(fd fd, cmd const[BCH_IOCTL_DISK_REMOVE], arg ptr[in, bch_ioctl_disk_idx])
+ioctl$BCH_IOCTL_DISK_ONLINE(fd fd, cmd const[BCH_IOCTL_DISK_ONLINE], arg ptr[in, bch_ioctl_disk_str])
+ioctl$BCH_IOCTL_DISK_OFFLINE(fd fd, cmd const[BCH_IOCTL_DISK_OFFLINE], arg ptr[in, bch_ioctl_disk_idx])
+ioctl$BCH_IOCTL_DISK_SET_STATE(fd fd, cmd const[BCH_IOCTL_DISK_SET_STATE], arg ptr[in, bch_ioctl_disk_set_state])
+ioctl$BCH_IOCTL_DISK_RESIZE(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE], arg ptr[in, bch_ioctl_disk_resize])
+ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal])
+
+bch_ioctl_disk_str {
+	flags	int32
+	pad	const[0, int32]
+	dev	stringnoz[filename]
+}
+
+bch_ioctl_disk_idx {
+	flags	int32
+	pad	const[0, int32]
+	dev	int64
+}
+
+bch_ioctl_disk_set_state {
+	flags		int32
+	new_state	int8
+	pad		array[const[0, int8], 3]
+	dev		stringnoz[filename]
+}
+
+bch_ioctl_disk_resize {
+	flags		int32
+	pad		const[0, int32]
+	dev		int64
+	nbuckets	int64
+}
+
+bch_ioctl_disk_resize_journal {
+	flags		int32
+	pad		const[0, int32]
+	dev		int64
+	nbuckets	int64
+}

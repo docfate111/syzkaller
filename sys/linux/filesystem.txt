@@ -48,7 +48,7 @@ fsmount_attr_flags = MOUNT_ATTR_RDONLY, MOUNT_ATTR_NOSUID, MOUNT_ATTR_NODEV, MOU
 move_mount_flags = MOVE_MOUNT_F_SYMLINKS, MOVE_MOUNT_F_AUTOMOUNTS, MOVE_MOUNT_F_EMPTY_PATH, MOVE_MOUNT_T_SYMLINKS, MOVE_MOUNT_T_AUTOMOUNTS, MOVE_MOUNT_T_EMPTY_PATH
 fsconfig_flag_params = "dirsync", "lazytime", "mand", "posixacl", "ro", "sync", "async", "nolazytime", "nomand", "rw", "silent"
 
-filesystem = "sysfs", "rootfs", "ramfs", "tmpfs", "devtmpfs", "debugfs", "securityfs", "sockfs", "pipefs", "anon_inodefs", "devpts", "ext3", "ext2", "ext4", "hugetlbfs", "vfat", "ecryptfs", "fuseblk", "fuse", "rpc_pipefs", "nfs", "nfs4", "nfsd", "binfmt_misc", "autofs", "xfs", "jfs", "msdos", "ntfs", "minix", "hfs", "hfsplus", "qnx4", "ufs", "btrfs", "configfs", "ncpfs", "qnx6", "exofs", "befs", "vxfs", "gfs2", "gfs2meta", "fusectl", "bfs", "nsfs", "efs", "cifs", "efivarfs", "affs", "tracefs", "bdev", "ocfs2", "ocfs2_dlmfs", "hpfs", "proc", "afs", "reiserfs", "jffs2", "romfs", "aio", "sysv", "v7", "udf", "ceph", "pstore", "adfs", "9p", "hostfs", "squashfs", "cramfs", "iso9660", "coda", "nilfs2", "logfs", "overlay", "f2fs", "omfs", "ubifs", "openpromfs", "bpf", "cgroup", "cgroup2", "cpuset", "mqueue", "aufs", "selinuxfs", "dax", "erofs", "virtiofs", "exfat", "binder", "zonefs", "pvfs2", "incremental-fs", "esdfs"
+filesystem = "sysfs", "rootfs", "ramfs", "tmpfs", "devtmpfs", "debugfs", "securityfs", "sockfs", "pipefs", "anon_inodefs", "devpts", "ext3", "ext2", "ext4", "hugetlbfs", "vfat", "ecryptfs", "fuseblk", "fuse", "rpc_pipefs", "nfs", "nfs4", "nfsd", "binfmt_misc", "autofs", "xfs", "jfs", "msdos", "ntfs", "minix", "hfs", "hfsplus", "qnx4", "ufs", "btrfs", "configfs", "ncpfs", "qnx6", "exofs", "befs", "vxfs", "gfs2", "gfs2meta", "fusectl", "bfs", "nsfs", "efs", "cifs", "efivarfs", "affs", "tracefs", "bdev", "ocfs2", "ocfs2_dlmfs", "hpfs", "proc", "afs", "reiserfs", "jffs2", "romfs", "aio", "sysv", "v7", "udf", "ceph", "pstore", "adfs", "9p", "hostfs", "squashfs", "cramfs", "iso9660", "coda", "nilfs2", "logfs", "overlay", "f2fs", "omfs", "ubifs", "openpromfs", "bpf", "cgroup", "cgroup2", "cpuset", "mqueue", "aufs", "selinuxfs", "dax", "erofs", "virtiofs", "exfat", "binder", "zonefs", "pvfs2", "incremental-fs", "esdfs", "bcachefs"
 
 blockdev_filename [
 	filename	filename
@@ -91,6 +91,7 @@ syz_mount_image$btrfs(fs ptr[in, string["btrfs"]], dir ptr[in, filename], size i
 syz_mount_image$ntfs(fs ptr[in, string["ntfs"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[ntfs_options]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
 syz_mount_image$ext4(fs ptr[in, string[ext4_types]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[ext4_options]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
 syz_mount_image$f2fs(fs ptr[in, string["f2fs"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[f2fs_options]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
+syz_mount_image$bcachefs(fs ptr[in, string["bcachefs"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[bcachefs_options]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
 syz_mount_image$ocfs2(fs ptr[in, string["ocfs2"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[stringnoz]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
 syz_mount_image$nfs(fs ptr[in, string["nfs"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[stringnoz]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
 syz_mount_image$nfs4(fs ptr[in, string["nfs4"]], dir ptr[in, filename], size intptr, nsegs len[segments], segments ptr[in, array[fs_image_segment]], flags flags[mount_flags], opts ptr[in, fs_options[stringnoz]]) fd_dir (timeout[SYZ_MOUNT_IMAGE_TIMEOUT])
@@ -706,6 +707,39 @@ f2fs_options [
 	fsync_mode_posix	stringnoz["fsync_mode=posix"]
 	fsync_mode_strict	stringnoz["fsync_mode=strict"]
 	test_dummy_encryption	stringnoz["test_dummy_encryption"]
+] [varlen]
+
+bcachefs_options [
+	errors_continue			stringnoz["errors=continue"]
+	errors_ro			stringnoz["errors=ro"]
+	errors_panic			stringnoz["errors=panic"]
+	metadata_replicas		fs_opt["metadata_replicas", int8]
+	data_replicas			fs_opt["data_replicas", int8]
+	metadata_cksum_none		stringnoz["metadata_checksum=none"]
+	metadata_cksum_crc32c		stringnoz["metadata_checksum=crc32c"]
+	metadata_cksum_crc64		stringnoz["metadata_checksum=crc64"]
+	data_cksum_none			stringnoz["data_checksum=none"]
+	data_cksum_crc32c		stringnoz["data_checksum=crc32c"]
+	data_cksum_crc64		stringnoz["data_checksum=crc64"]
+	compression_none		stringnoz["compression=none"]
+	compression_lz4			stringnoz["compression=lz4"]
+	compression_gzip		stringnoz["compression=gzip"]
+	compression_zstd		stringnoz["compression=zstd"]
+	background_compression_none	stringnoz["background_compression=none"]
+	background_compression_lz4	stringnoz["background_compression=lz4"]
+	background_compression_gzip	stringnoz["background_compression=gzip"]
+	background_compression_zstd	stringnoz["background_compression=zstd"]
+	str_hash_crc32c			stringnoz["str_hash=crc32c"]
+	str_hash_crc64			stringnoz["str_hash=crc64"]
+	str_hash_siphash		stringnoz["str_hash=siphash"]
+	metadata_target			fs_opt_filename["metadata_target"]
+	foreground_target		fs_opt_filename["foreground_target"]
+	background_target		fs_opt_filename["background_target"]
+	promote_target			fs_opt_filename["promote_target"]
+	erasure_code			stringnoz["erasure_code"]
+	inodes_32bit			stringnoz["inodes_32bit"]
+	acl				stringnoz["acl"]
+	fsck				stringnoz["fsck"]
 ] [varlen]
 
 bpf_options [

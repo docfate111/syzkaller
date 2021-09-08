@@ -1,0 +1,63 @@
+include <uapi/misc/fastrpc.h>
+include <uapi/linux/fcntl.h>
+
+resource fd_frpc[fd]
+
+openat$fastrpc(fd fd_frpc, file ptr[in, string["/dev/fastrpc"]], flags flags[open_flags], mode const[0]))
+
+ioctl$FASTRPC_IOCTL_INVOKE(fd fd_frpc, FASTRPC_IOCTL_INVOKE, arg ptr[in, fastrpc_invoke])
+ioctl$FASTRPC_IOCTL_INIT_ATTACH(fd fd_frpc, FASTRPC_IOCTL_INIT_ATTACH, arg const[0])
+ioctl$FASTRPC_IOCTL_INIT_ATTACH_SNS(fd fd_rpc, FASTRPC_IOCTL_INIT_ATTACH_SNS, arg const[0])
+ioctl$FASTRPC_IOCTL_INIT_CREATE(fd fd_rpc, FASTRPC_IOCTL_INIT_CREATE, arg ptr[in, fastrpc_init_create])
+
+ioctl$FASTRPC_IOCTL_ALLOC_DMA_BUFF(fd fd_rpc, FASTRPC_IOCTL_ALLOC_DMA_BUFF, arg ptr[in, fastrpc_alloc_dma_buf])
+ioctl$FASTRPC_IOCTL_MMAP(fd fd_rpc, FASTRPC_IOCTL_MMAP, arg ptr[in, fastrpc_req_mmap])
+ioctl$FASTRPC_IOCTL_MUNMAP(fd fd_rpc,  FASTRPC_IOCTL_MUNMAP, arg ptr[in, fastrpc_req_munmap])
+
+close(fd fd_frpc)
+
+fastrpc_invoke {
+	handle int32
+	sc int32
+	args ptr[inout, fastrpc_invoke_args]
+}
+
+fastrpc_invoke_args {
+	ptr int64
+	length int64
+	fd int32
+	reserved int32
+}
+
+fastrpc_init_create {
+	filelen int32
+	filefd int32
+	attrs int32
+	siglen int32
+	file int64 
+	#ptr[in,  pointer to elf file ]
+}
+
+fastrpc_alloc_dma_buf {
+	fd int32
+	flags int32
+	size int64
+}
+
+fastrpc_req_mmap {
+	fd int32
+	flags int32
+	# flags for dsp to map with */
+	vaddrin int64 
+	# (must be 0)
+	size int64
+	vaddrout int64
+	# dsp virtual address */
+}
+
+
+struct fastrpc_req_munmap {
+	vaddrout int64
+	# address to unmap */
+	size int64
+}

@@ -7,7 +7,7 @@ ioctl$BCH_IOCTL_QUERY_UUID(fd fd, cmd const[BCH_IOCTL_QUERY_UUID], arg ptr[in, i
 ioctl$BCH_IOCTL_FS_USAGE(fd fd, cmd const[BCH_IOCTL_FS_USAGE], arg ptr[in, bch_ioctl_fs_usage])
 ioctl$BCH_IOCTL_DEV_USAGE(fd fd, cmd const[BCH_IOCTL_DEV_USAGE], arg ptr[in, bch_ioctl_dev_usage])
 ioctl$BCH_IOCTL_START(fd fd, cmd const[BCH_IOCTL_START], arg ptr[in, bch_ioctl_start])
-ioctl$BCH_IOCTL_STOP(fd fd, cmd const[BCH_IOCTL_STOP], arg const[0])
+#ioctl$BCH_IOCTL_STOP(fd fd, cmd const[BCH_IOCTL_STOP], arg const[0])
 ioctl$BCH_IOCTL_READ_SUPER(fd fd, cmd const[BCH_IOCTL_READ_SUPER], arg ptr[in, bch_ioctl_read_super])
 ioctl$BCH_IOCTL_DISK_GET_IDX(fd fd, cmd const[BCH_IOCTL_DISK_GET_IDX], arg ptr[in, bch_ioctl_disk_get_idx])
 ioctl$BCH_IOCTL_DISK_ADD(fd fd, cmd const[BCH_IOCTL_DISK_ADD], arg ptr[in, bch_ioctl_disk])
@@ -15,19 +15,20 @@ ioctl$BCH_IOCTL_DISK_REMOVE(fd fd, cmd const[BCH_IOCTL_DISK_REMOVE], arg ptr[in,
 ioctl$BCH_IOCTL_DISK_ONLINE(fd fd, cmd const[BCH_IOCTL_DISK_ONLINE], arg ptr[in, bch_ioctl_disk])
 ioctl$BCH_IOCTL_DISK_OFFLINE(fd fd, cmd const[BCH_IOCTL_DISK_OFFLINE], arg ptr[in, bch_ioctl_disk])
 ioctl$BCH_IOCTL_DISK_SET_STATE(fd fd, cmd const[BCH_IOCTL_DISK_SET_STATE], arg ptr[in, bch_ioctl_disk_set_state])
-ioctl$BCH_IOCTL_DATA(fd fd, cmd const[BCH_IOCTL_DATA], arg ptr[in, bch_ioctl_data])
+#ioctl$BCH_IOCTL_DATA(fd fd, cmd const[BCH_IOCTL_DATA], arg ptr[in, bch_ioctl_data])
 ioctl$BCH_IOCTL_DISK_RESIZE(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE], arg ptr[in, bch_ioctl_disk_resize])
-ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal]])
-ioctl$BCH_IOCTL_ASSEMBLE(fd fd, cmd const[BCH_IOCTL_ASSEMBLE], arg ptr[in, bch_ioctl_assemble])
+ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal])
+#ioctl$BCH_IOCTL_ASSEMBLE(fd fd, cmd const[BCH_IOCTL_ASSEMBLE], arg ptr[in, bch_ioctl_assemble])
 ioctl$BCH_IOCTL_INCREMENTAL(fd fd, cmd const[BCH_IOCTL_INCREMENTAL], arg ptr[in, bch_ioctl_incremental])
 
 bch_ioctl_fs_usage {
-	capacity[int64];
-	used[int64];
-	online_reserved[int64];
-	persistent_reserved[int64, BCH_REPLICAS_MAX];
-	sectors[int64, BCH_DATA_NR, BCH_REPLICAS_MAX];
+	capacity int64
+	used int64
+	online_reserved int64
+	#persistent_reserved array[int64, BCH_REPLICAS_MAX]
+	#sectors array[array[int64, BCH_DATA_NR], BCH_REPLICAS_MAX]
 }
+
 
 bch_ioctl_dev_usage {
 	state int8
@@ -36,8 +37,8 @@ bch_ioctl_dev_usage {
 	dev int32
 	bucket_size int32
 	nr_buckets int64
-	array buckets[int64, BCH_DATA_NR]
-        array sectors[int64, BCH_DATA_NR]
+#	buckets array[int64, BCH_DATA_NR]
+#        sectors array[int64, BCH_DATA_NR]
 }
 
 bch_ioctl_start {
@@ -64,23 +65,36 @@ bch_ioctl_disk_set_state {
 	dev int64
 }
 
-bpos { 
-	inode int64
-	offset int64
-	snapshot int64
+#bpos { 
+#	inode int64
+#	offset int64
+#	snapshot int64
+#}
+
+#migrate {
+#	dev int32
+#	pad int32
+#}
+
+#bch_ioctl_data {
+#	op int32
+#	flags int32
+#	start bpos
+#	end bpos
+#	m migrate
+#}
+
+bch_ioctl_disk {
+	flags int32
+	pad int32
+	dev int64
 }
 
-bch_ioctl_data {
-	op int32
+bch_ioctl_disk_resize_journal {
 	flags int32
-	start bpos
-	end bpos
-	[
-	 {
-	 dev int32
-	 pad int32
-	 }
-	]
+	pad int32
+	dev int32
+	nbuckets int64
 }
 
 bch_ioctl_disk_resize {
@@ -90,17 +104,15 @@ bch_ioctl_disk_resize {
 	nbuckets int64
 }
 
-bch_ioctl_assemble {
-	 flags int32
-	nr_devs int32
-	pad int64
-	devs array[int64]
-}
+#bch_ioctl_assemble {
+#	flags int32
+#	nr_devs int32
+#	pad int64
+#	devs array[int64]
+#}
 
 bch_ioctl_incremental {
 	flags int32
 	pad int64
 	dev int64
 }
-
-BCH_REPLICAS_MAX = 4

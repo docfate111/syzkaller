@@ -117,7 +117,6 @@ eth2_packet [
 	ipv6	eth2_packet_t[ETH_P_IPV6, ipv6_packet]
 	llc	eth2_packet_t[ETH_P_802_2, llc_packet]
 	llc_tr	eth2_packet_t[ETH_P_TR_802_2, llc_packet]
-	ipx	eth2_packet_t[ETH_P_IPX, ipx_packet]
 	x25	eth2_packet_t[ETH_P_X25, x25_packet]
 	mpls_uc	eth2_packet_t[ETH_P_MPLS_UC, mpls_packet]
 	mpls_mc	eth2_packet_t[ETH_P_MPLS_MC, mpls_packet]
@@ -205,49 +204,6 @@ llc_packet {
 #	length	len[payload, int16be]
 	payload	llc_payload
 } [packed]
-
-################################################################################
-###################################### IPX #####################################
-################################################################################
-
-# http://www.networksorcery.com/enp/protocol/ipx.htm
-# https://en.wikipedia.org/wiki/Internetwork_Packet_Exchange#IPX_packet_structure
-
-include <net/ipx.h>
-
-ipx_network [
-	random		int32be
-	current		const[0x0, int32be]
-	broadcast	const[0xffffffff, int32be]
-]
-
-ipx_node [
-	random		array[int8, 6]
-	current		array[const[0x0, int8], 6]
-	broadcast	array[const[0xff, int8], 6]
-]
-
-ipx_addr {
-	network	ipx_network
-	node	ipx_node
-	socket	int16be
-} [packed]
-
-ipx_packet_types = IPX_TYPE_UNKNOWN, IPX_TYPE_RIP, IPX_TYPE_SAP, IPX_TYPE_SPX, IPX_TYPE_NCP, IPX_TYPE_PPROP
-
-ipx_packet {
-	csum		const[0xffff, int16be]
-	length		len[parent, int16be]
-	control		int8
-	type		flags[ipx_packet_types, int8]
-	dst_addr	ipx_addr
-	src_addr	ipx_addr
-	payload		array[int8]
-} [packed]
-
-# TODO: setup ipx on virtual interfaces in executor
-# TODO: describe particular ipx types
-# TODO: open ipx sockets from userspace
 
 ################################################################################
 ###################################### x25 #####################################

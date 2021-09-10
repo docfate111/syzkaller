@@ -61,7 +61,6 @@ sock_pair {
 sockaddr [
 	in		sockaddr_in
 	ax25		sockaddr_ax25
-	ipx		sockaddr_ipx
 	nl		sockaddr_nl
 	llc		sockaddr_llc
 	can		sockaddr_can
@@ -87,7 +86,6 @@ sockaddr_storage [
 	in		sockaddr_in
 	x25		sockaddr_x25
 	ax25		full_sockaddr_ax25
-	ipx		sockaddr_ipx
 	in6		sockaddr_in6
 	nl		sockaddr_nl
 	ll		sockaddr_ll

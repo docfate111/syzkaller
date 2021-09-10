@@ -6,11 +6,8 @@ include <linux/f2fs_fs.h>
 include <fs/f2fs/f2fs.h>
 include <uapi/linux/f2fs.h>
 
-ioctl$FS_IOC_GETVERSION(fd fd, cmd const[FS_IOC_GETVERSION], arg ptr[out, int32])
-ioctl$F2FS_IOC_START_ATOMIC_WRITE(fd fd, cmd const[F2FS_IOC_START_ATOMIC_WRITE], arg const[0])
 ioctl$F2FS_IOC_COMMIT_ATOMIC_WRITE(fd fd, cmd const[F2FS_IOC_COMMIT_ATOMIC_WRITE], arg const[0])
 ioctl$F2FS_IOC_START_VOLATILE_WRITE(fd fd, cmd const[F2FS_IOC_START_VOLATILE_WRITE], arg const[0])
-ioctl$F2FS_IOC_RELEASE_VOLATILE_WRITE(fd fd, cmd const[F2FS_IOC_RELEASE_VOLATILE_WRITE], arg const[0])
 ioctl$F2FS_IOC_ABORT_VOLATILE_WRITE(fd fd, cmd const[F2FS_IOC_ABORT_VOLATILE_WRITE], arg const[0])
 ioctl$F2FS_IOC_GARBAGE_COLLECT(fd fd, cmd const[F2FS_IOC_GARBAGE_COLLECT], arg ptr[in, bool32])
 ioctl$F2FS_IOC_GARBAGE_COLLECT_RANGE(fd fd, cmd const[F2FS_IOC_GARBAGE_COLLECT_RANGE], arg ptr[in, f2fs_gc_range])
@@ -26,15 +23,7 @@ ioctl$F2FS_IOC_RESIZE_FS(fd fd, cmd const[F2FS_IOC_RESIZE_FS], arg ptr[in, int64
 ioctl$F2FS_IOC_GET_COMPRESS_BLOCKS(fd fd, cmd const[F2FS_IOC_GET_COMPRESS_BLOCKS], arg ptr[out, int64])
 ioctl$F2FS_IOC_RELEASE_COMPRESS_BLOCKS(fd fd, cmd const[F2FS_IOC_RELEASE_COMPRESS_BLOCKS], arg ptr[out, int64])
 ioctl$F2FS_IOC_RESERVE_COMPRESS_BLOCKS(fd fd, cmd const[F2FS_IOC_RESERVE_COMPRESS_BLOCKS], arg ptr[out, int64])
-ioctl$FITRIM(fd fd, cmd const[FITRIM], arg ptr[in, fstrim_range])
-ioctl$FS_IOC_SET_ENCRYPTION_POLICY(fd fd, cmd const[FS_IOC_SET_ENCRYPTION_POLICY], arg ptr[in, int8])
-ioctl$FS_IOC_GET_ENCRYPTION_POLICY(fd fd, cmd const[FS_IOC_GET_ENCRYPTION_POLICY], arg ptr[out, fscrypt_context])
-ioctl$FS_IOC_ADD_ENCRYPTION_KEY(fd fd, cmd const[FS_IOC_ADD_ENCRYPTION_KEY], arg ptr[in, fscrypt_key_specifier])
-ioctl$FS_IOC_REMOVE_ENCRYPTION_KEY(fd fd, cmd const[FS_IOC_REMOVE_ENCRYPTION_KEY], arg ptr[in, fscrypt_remove_key_arg])
-ioctl$FS_IOC_ENABLE_VERITY(fd fd, cmd const[FS_IOC_ENABLE_VERITY], arg ptr[in, fsverity_enable_arg])
-ioctl$FS_IOC_MEASURE_VERITY(fd fd, cmd const[FS_IOC_MEASURE_VERITY], arg ptr[in, fsverity_digest])
 ioctl$FS_IOC_READ_VERITY_METADATA(fd fd, cmd const[FS_IOC_READ_VERITY_METADATA], arg ptr[in, fsverity_read_metadata_arg])
-ioctl$FS_IOC_SETFSLABEL(fd fd, cmd const[FS_IOC_SETFSLABEL], arg string)
 ioctl$F2FS_IOC_SEC_TRIM_FILE(fd fd, cmd const[F2FS_IOC_SEC_TRIM_FILE], arg ptr[in, f2fs_sectrim_range])
 ioctl$F2FS_IOC_GET_COMPRESS_OPTION(fd fd, cmd const[F2FS_IOC_GET_COMPRESS_OPTION], arg ptr[in, f2fs_comp_option])
 ioctl$F2FS_IOC_DECOMPRESS_FILE(fd fd, cmd const[F2FS_IOC_DECOMPRESS_FILE], arg const[0])
@@ -76,54 +65,22 @@ sig {
 	sig array[int8, 32]
 }
 
-fsverity_enable_arg {
-	version int32
-	hash_algorithm int32
-	block_size int32
-	salt_size int32
-	salt_ptr ptr[in, salt]
-	sig_size int32
-	__reserved1 int32
-	sig_ptr ptr[in, sig]
-	__reserved2 array[int64, 11]
-}
-
 f2fs_gc_range {
 	sync int32
 	start int64
 	len int64
 }
 
-fscrypt_get_key_status_arg {
-	key_spec fscrypt_key_specifier
-	__reserved array[int32, 6]
-	status int32
-	user_count int32
-	__out_reserved array[int32, 13]
-}
+union_name [
+	__reserved array[int8]
+	descriptor array[int8]
+	identifier array[int8]
+]
 
 fscrypt_key_specifier {
 	type int32
 	reserved int32
-	union {
-		__reserved array[int8, 32]
-		descriptor[int8, 8]
-		identifier[int8, 8]
-	}
-}
-
-fscrypt_add_key_arg {
-	key_spec fscrypt_key_specifier
-	raw_size int32
-	key_id int32
-	reserved array[int32, 8]
-	raw array[int8]
-}
-
-fscrypt_remove_key_arg {
-	key_spec fscrypt_key_specifier
-	removal_status_flags int32
-	reserved array[int32, 5]
+	union union_name
 }
 
 fscrypt_context {
@@ -148,18 +105,6 @@ fscrypt_context_v2 {
 	flags int8
 	master_key_descriptor array[int8, 8]
 	nonce array[int8, 16]
-}
-
-fstrim_range {
-	start int64
-	len int64
-	minlen int64
-}
-
-f2fs_gc_range {
-	sync	bool32
-	start	int64
-	len	int64
 }
 
 f2fs_defragment {

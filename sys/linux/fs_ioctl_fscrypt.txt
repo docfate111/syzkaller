@@ -126,11 +126,6 @@ fscrypt_get_policy_ex_arg {
 
 # Structs for the ioctls that manage keys in the filesystem-level keyring
 
-fscrypt_key_specifier [
-	desc	fscrypt_key_specifier__by_descriptor
-	id	fscrypt_key_specifier__by_identifier
-]
-
 fscrypt_key_specifier__by_descriptor {
 	type		const[FSCRYPT_KEY_SPEC_TYPE_DESCRIPTOR, int32]
 	reserved	const[0, int32]

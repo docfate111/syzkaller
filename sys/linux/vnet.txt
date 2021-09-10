@@ -213,7 +213,7 @@ llc_packet {
 # http://www.networksorcery.com/enp/protocol/ipx.htm
 # https://en.wikipedia.org/wiki/Internetwork_Packet_Exchange#IPX_packet_structure
 
-include <net/ipx.h>
+#include <net/ipx.h>
 
 ipx_network [
 	random		int32be

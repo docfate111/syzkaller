@@ -22,6 +22,18 @@ ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURN
 #ioctl$BCH_IOCTL_ASSEMBLE(fd fd, cmd const[BCH_IOCTL_ASSEMBLE], arg ptr[in, bch_ioctl_assemble])
 ioctl$BCH_IOCTL_INCREMENTAL(fd fd, cmd const[BCH_IOCTL_INCREMENTAL], arg ptr[in, bch_ioctl_incremental])
 
+bch_replicas_entry {
+	data_type int8
+	nr_devs int8
+	nr_required int8
+	devs int8
+}
+
+bch_replicas_usage {
+	sectors int64
+	r bch_replicas_entry
+}
+
 bch_ioctl_fs_usage {
 	capacity int64
 	used int64

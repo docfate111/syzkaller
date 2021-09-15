@@ -1,5 +1,6 @@
 include <uapi/linux/fs.h>
 include <linux/bcachefs_fs.h>
+include <linux/uuid.h>
 include <fs/bcachefs/bcachefs.h>
 include <uapi/linux/bcachefs.h>
 
@@ -27,16 +28,22 @@ bch_ioctl_fs_usage {
 	online_reserved int64
 	#persistent_reserved array[int64, BCH_REPLICAS_MAX]
 	#sectors array[array[int64, BCH_DATA_NR], BCH_REPLICAS_MAX]
+	replica_entries_bytes int32
+	pad int32
+	replicas bch_replicas_usage
 }
 
 
 bch_ioctl_dev_usage {
+	dev int64
+	flags int32
 	state int8
-	val int8
-	pad array[int8, 6]
-	dev int32
+	pad array[int8, 7]
 	bucket_size int32
 	nr_buckets int64
+	available_buckets int64
+	ec_buckets int64
+	ec_sectors int64
 #	buckets array[int64, BCH_DATA_NR]
 #        sectors array[int64, BCH_DATA_NR]
 }
@@ -47,8 +54,8 @@ bch_ioctl_start {
 }
 
 bch_ioctl_read_super {
-	flags int64
-	pad int64
+	flags int32
+	pad int32
 	dev int64
 	size int64
 	sb int64
@@ -93,7 +100,7 @@ bch_ioctl_disk {
 bch_ioctl_disk_resize_journal {
 	flags int32
 	pad int32
-	dev int32
+	dev int64
 	nbuckets int64
 }
 

@@ -1,7 +1,5 @@
 include <uapi/linux/fs.h>
-include <linux/bcachefs_fs.h>
 include <fs/bcachefs/bcachefs.h>
-include <uapi/linux/bcachefs.h>
 
 ioctl$BCH_IOCTL_QUERY_UUID(fd fd, cmd const[BCH_IOCTL_QUERY_UUID], arg ptr[in, int32])
 ioctl$BCH_IOCTL_FS_USAGE(fd fd, cmd const[BCH_IOCTL_FS_USAGE], arg ptr[in, bch_ioctl_fs_usage])
@@ -17,27 +15,33 @@ ioctl$BCH_IOCTL_DISK_OFFLINE(fd fd, cmd const[BCH_IOCTL_DISK_OFFLINE], arg ptr[i
 ioctl$BCH_IOCTL_DISK_SET_STATE(fd fd, cmd const[BCH_IOCTL_DISK_SET_STATE], arg ptr[in, bch_ioctl_disk_set_state])
 ioctl$BCH_IOCTL_DATA(fd fd, cmd const[BCH_IOCTL_DATA], arg ptr[in, bch_ioctl_data])
 ioctl$BCH_IOCTL_DISK_RESIZE(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE], arg ptr[in, bch_ioctl_disk_resize])
-ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal]])
+ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal])
 ioctl$BCH_IOCTL_ASSEMBLE(fd fd, cmd const[BCH_IOCTL_ASSEMBLE], arg ptr[in, bch_ioctl_assemble])
 ioctl$BCH_IOCTL_INCREMENTAL(fd fd, cmd const[BCH_IOCTL_INCREMENTAL], arg ptr[in, bch_ioctl_incremental])
 
+
 bch_ioctl_fs_usage {
-	capacity[int64];
-	used[int64];
-	online_reserved[int64];
-	persistent_reserved[int64, BCH_REPLICAS_MAX];
-	sectors[int64, BCH_DATA_NR, BCH_REPLICAS_MAX];
+	capacity int64
+	used int64
+	online_reserved int64
+	persistent_reserved array[int64, 8]
+	replica_entries_bytes int32
+	pad int32
+	replicas bch_replicas_usage
 }
 
 bch_ioctl_dev_usage {
+	dev int64
+	flags int32
 	state int8
-	val int8
-	pad array[int8, 6]
-	dev int32
+	pad array[int8, 7]
 	bucket_size int32
 	nr_buckets int64
-	array buckets[int64, BCH_DATA_NR]
-        array sectors[int64, BCH_DATA_NR]
+	available_buckets int64
+	buckets array[int64, 6]
+        sectors array[int64, 6]
+	ec_buckets int64
+	ec_sectors int64
 }
 
 bch_ioctl_start {
@@ -46,8 +50,8 @@ bch_ioctl_start {
 }
 
 bch_ioctl_read_super {
-	flags int64
-	pad int64
+	flags int32
+	pad int32
 	dev int64
 	size int64
 	sb int64
@@ -60,27 +64,34 @@ bch_ioctl_disk_get_idx {
 bch_ioctl_disk_set_state {
 	flags int32
 	new_state int8
-	pad array[int64, 3]
+	pad array[int8, 3]
 	dev int64
 }
 
-bpos { 
-	inode int64
+type bpos[T] [ 
+	inode T
 	offset int64
 	snapshot int64
-}
+]
+
+type migrate[T] [
+	dev T
+	pad int32
+] 
+
+type pads[T] [
+	pad array[T, 8]
+]
 
 bch_ioctl_data {
-	op int32
+	op int16
+	start_btree int8
+	end_btree int8
 	flags int32
-	start bpos
-	end bpos
-	[
-	 {
-	 dev int32
-	 pad int32
-	 }
-	]
+	start bpos[int32]
+	end bpos[int32]
+	m migrate[int32]
+	pad pads[int64]
 }
 
 bch_ioctl_disk_resize {
@@ -103,4 +114,26 @@ bch_ioctl_incremental {
 	dev int64
 }
 
-BCH_REPLICAS_MAX = 4
+ bch_ioctl_disk {
+	flags int32
+	pad int32
+	dev int64
+}
+
+type bch_replicas_entry[T] [
+	data_type T
+	nr int8
+	devs int8
+]
+
+bch_replicas_usage {
+	sectors int64
+	r bch_replicas_entry[int8]
+}
+
+bch_ioctl_disk_resize_journal {
+	flags int32
+	pad int32
+	dev int64
+	nbuckets int64
+}

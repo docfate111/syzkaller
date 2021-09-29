@@ -1,11 +1,10 @@
 include <uapi/linux/fs.h>
 include <fs/bcachefs/bcachefs.h>
+include <fs/bcachefs/bcachefs_ioctl.h>
 
 ioctl$BCH_IOCTL_QUERY_UUID(fd fd, cmd const[BCH_IOCTL_QUERY_UUID], arg ptr[in, int32])
 ioctl$BCH_IOCTL_FS_USAGE(fd fd, cmd const[BCH_IOCTL_FS_USAGE], arg ptr[in, bch_ioctl_fs_usage])
 ioctl$BCH_IOCTL_DEV_USAGE(fd fd, cmd const[BCH_IOCTL_DEV_USAGE], arg ptr[in, bch_ioctl_dev_usage])
-ioctl$BCH_IOCTL_START(fd fd, cmd const[BCH_IOCTL_START], arg ptr[in, bch_ioctl_start])
-ioctl$BCH_IOCTL_STOP(fd fd, cmd const[BCH_IOCTL_STOP], arg const[0])
 ioctl$BCH_IOCTL_READ_SUPER(fd fd, cmd const[BCH_IOCTL_READ_SUPER], arg ptr[in, bch_ioctl_read_super])
 ioctl$BCH_IOCTL_DISK_GET_IDX(fd fd, cmd const[BCH_IOCTL_DISK_GET_IDX], arg ptr[in, bch_ioctl_disk_get_idx])
 ioctl$BCH_IOCTL_DISK_ADD(fd fd, cmd const[BCH_IOCTL_DISK_ADD], arg ptr[in, bch_ioctl_disk])
@@ -16,8 +15,6 @@ ioctl$BCH_IOCTL_DISK_SET_STATE(fd fd, cmd const[BCH_IOCTL_DISK_SET_STATE], arg p
 ioctl$BCH_IOCTL_DATA(fd fd, cmd const[BCH_IOCTL_DATA], arg ptr[in, bch_ioctl_data])
 ioctl$BCH_IOCTL_DISK_RESIZE(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE], arg ptr[in, bch_ioctl_disk_resize])
 ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal])
-ioctl$BCH_IOCTL_ASSEMBLE(fd fd, cmd const[BCH_IOCTL_ASSEMBLE], arg ptr[in, bch_ioctl_assemble])
-ioctl$BCH_IOCTL_INCREMENTAL(fd fd, cmd const[BCH_IOCTL_INCREMENTAL], arg ptr[in, bch_ioctl_incremental])
 
 
 bch_ioctl_fs_usage {
@@ -44,10 +41,6 @@ bch_ioctl_dev_usage {
 	ec_sectors int64
 }
 
-bch_ioctl_start {
-	flags int32
-	pad int32
-}
 
 bch_ioctl_read_super {
 	flags int32
@@ -101,18 +94,7 @@ bch_ioctl_disk_resize {
 	nbuckets int64
 }
 
-bch_ioctl_assemble {
-	 flags int32
-	nr_devs int32
-	pad int64
-	devs array[int64]
-}
 
-bch_ioctl_incremental {
-	flags int32
-	pad int64
-	dev int64
-}
 
  bch_ioctl_disk {
 	flags int32

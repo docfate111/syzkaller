@@ -85,9 +85,8 @@ static void segv_handler(int sig, siginfo_t* info, void* ctx)
 	int skip = __atomic_load_n(&skip_segv, __ATOMIC_RELAXED) != 0;
 	int valid = addr < prog_start || addr > prog_end;
 #if GOOS_freebsd || (GOOS_test && HOSTGOOS_freebsd)
-	if (sig == SIGBUS) {
+	if (sig == SIGBUS)
 		valid = 1;
-	}
 #endif
 	if (skip && valid) {
 		debug("SIGSEGV on %p, skipping\n", (void*)addr);
@@ -238,10 +237,16 @@ static void __attribute__((noinline)) remove_dir(const char* dir)
 #endif
 
 #if !GOOS_linux && !GOOS_netbsd
-#if SYZ_EXECUTOR
+#if SYZ_EXECUTOR || SYZ_FAULT
 static int inject_fault(int nth)
 {
 	return 0;
+}
+#endif
+
+#if SYZ_FAULT
+static void setup_fault()
+{
 }
 #endif
 
@@ -687,9 +692,8 @@ static struct usb_device_index* add_usb_index(int fd, const char* dev, size_t de
 static struct usb_device_index* lookup_usb_index(int fd)
 {
 	for (int i = 0; i < USB_MAX_FDS; i++) {
-		if (__atomic_load_n(&usb_devices[i].fd, __ATOMIC_ACQUIRE) == fd) {
+		if (__atomic_load_n(&usb_devices[i].fd, __ATOMIC_ACQUIRE) == fd)
 			return &usb_devices[i].index;
-		}
 	}
 	return NULL;
 }
@@ -1583,6 +1587,7 @@ static void setup_usb(void)
 #if SYZ_EXECUTOR || SYZ_FAULT
 #include <fcntl.h>
 #include <sys/fault.h>
+#include <sys/stat.h>
 static void setup_fault(void)
 {
 	if (chmod("/dev/fault", 0666))
@@ -1599,7 +1604,7 @@ static int inject_fault(int nth)
 
 	en.scope = FAULT_SCOPE_LWP;
 	en.mode = 0;
-	en.nth = nth + 2;
+	en.nth = nth + 1;
 	if (ioctl(fd, FAULT_IOC_ENABLE, &en) != 0)
 		failmsg("FAULT_IOC_ENABLE failed", "nth=%d", nth);
 
@@ -4368,9 +4373,8 @@ static struct usb_device_index* add_usb_index(int fd, const char* dev, size_t de
 static struct usb_device_index* lookup_usb_index(int fd)
 {
 	for (int i = 0; i < USB_MAX_FDS; i++) {
-		if (__atomic_load_n(&usb_devices[i].fd, __ATOMIC_ACQUIRE) == fd) {
+		if (__atomic_load_n(&usb_devices[i].fd, __ATOMIC_ACQUIRE) == fd)
 			return &usb_devices[i].index;
-		}
 	}
 	return NULL;
 }
@@ -5904,9 +5908,8 @@ static bool process_command_pkt(int fd, char* buf, ssize_t buf_size)
 {
 	struct hci_command_hdr* hdr = (struct hci_command_hdr*)buf;
 	if (buf_size < (ssize_t)sizeof(struct hci_command_hdr) ||
-	    hdr->plen != buf_size - sizeof(struct hci_command_hdr)) {
+	    hdr->plen != buf_size - sizeof(struct hci_command_hdr))
 		failmsg("process_command_pkt: invalid size", "suze=%zx", buf_size);
-	}
 
 	switch (hdr->opcode) {
 	case HCI_OP_WRITE_SCAN_ENABLE: {
@@ -6639,7 +6642,7 @@ struct kvm_opt {
 #define KVM_SETUP_VIRT86 (1 << 4)
 #define KVM_SETUP_SMM (1 << 5)
 #define KVM_SETUP_VM (1 << 6)
-static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
+static volatile long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
 {
 	const int vmfd = a0;
 	const int cpufd = a1;
@@ -7181,7 +7184,7 @@ struct kvm_opt {
 	uint64 typ;
 	uint64 val;
 };
-static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
+static volatile long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
 {
 	const int vmfd = a0;
 	const int cpufd = a1;
@@ -7319,6 +7322,10 @@ struct kvm_ppc_mmuv3_cfg {
 #define KVM_PPC_MMUV3_GTSE 2
 #endif
 
+#ifndef KVM_CAP_PPC_NESTED_HV
+#define KVM_CAP_PPC_NESTED_HV 160
+#endif
+
 struct kvm_text {
 	uintptr_t typ;
 	const void* text;
@@ -7357,6 +7364,16 @@ static int kvm_vcpu_enable_cap(int cpufd, uint32 capability)
 	return ioctl(cpufd, KVM_ENABLE_CAP, &cap);
 }
 
+static int kvm_vm_enable_cap(int vmfd, uint32 capability, uint64 p1, uint64 p2)
+{
+	struct kvm_enable_cap cap = {
+	    .cap = capability,
+	    .flags = 0,
+	    .args = {p1, p2},
+	};
+	return ioctl(vmfd, KVM_ENABLE_CAP, &cap);
+}
+
 static void dump_text(const char* mem, unsigned start, unsigned cw, uint32 debug_inst_opcode)
 {
 #ifdef DEBUG
@@ -7378,7 +7395,7 @@ static void dump_text(const char* mem, unsigned start, unsigned cw, uint32 debug
 #define KVM_SETUP_PPC64_DR (1 << 2)
 #define KVM_SETUP_PPC64_PR (1 << 3)
 #define KVM_SETUP_PPC64_PID1 (1 << 4)
-static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
+static volatile long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
 {
 	const int vmfd = a0;
 	const int cpufd = a1;
@@ -7402,6 +7419,9 @@ static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long 
 	if (kvm_vcpu_enable_cap(cpufd, KVM_CAP_PPC_PAPR))
 		return -1;
 
+	if (kvm_vm_enable_cap(vmfd, KVM_CAP_PPC_NESTED_HV, true, 0))
+		return -1;
+
 	for (uintptr_t i = 0; i < guest_mem_size / page_size; i++) {
 		struct kvm_userspace_memory_region memreg;
 		memreg.slot = i;
@@ -7409,9 +7429,8 @@ static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long 
 		memreg.guest_phys_addr = i * page_size;
 		memreg.memory_size = page_size;
 		memreg.userspace_addr = (uintptr_t)host_mem + i * page_size;
-		if (ioctl(vmfd, KVM_SET_USER_MEMORY_REGION, &memreg)) {
+		if (ioctl(vmfd, KVM_SET_USER_MEMORY_REGION, &memreg))
 			return -1;
-		}
 	}
 
 	struct kvm_regs regs;
@@ -7578,14 +7597,14 @@ static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long 
 	if (kvmppc_set_one_reg(cpufd, KVM_REG_PPC_PID, &pid))
 		return -1;
 #define MAX_HCALL 0x450
-	for (unsigned hcall = 4; hcall < MAX_HCALL; hcall += 4) {
-		struct kvm_enable_cap cap = {
-		    .cap = KVM_CAP_PPC_ENABLE_HCALL,
-		    .flags = 0,
-		    .args = {hcall, 1},
-		};
-		ioctl(vmfd, KVM_ENABLE_CAP, &cap);
-	}
+	for (unsigned hcall = 4; hcall < MAX_HCALL; hcall += 4)
+		kvm_vm_enable_cap(vmfd, KVM_CAP_PPC_ENABLE_HCALL, hcall, 1);
+
+	for (unsigned hcall = 0xf000; hcall < 0xf810; hcall += 4)
+		kvm_vm_enable_cap(vmfd, KVM_CAP_PPC_ENABLE_HCALL, hcall, 1);
+
+	for (unsigned hcall = 0xef00; hcall < 0xef20; hcall += 4)
+		kvm_vm_enable_cap(vmfd, KVM_CAP_PPC_ENABLE_HCALL, hcall, 1);
 	kvmppc_define_rtas_kernel_token(vmfd, 1, "ibm,set-xive");
 	kvmppc_define_rtas_kernel_token(vmfd, 2, "ibm,get-xive");
 	kvmppc_define_rtas_kernel_token(vmfd, 3, "ibm,int-on");
@@ -7602,7 +7621,7 @@ static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long 
 }
 
 #elif !GOARCH_arm
-static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
+static volatile long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
 {
 	return 0;
 }
@@ -9330,7 +9349,7 @@ static int inject_fault(int nth)
 	if (fd == -1)
 		exitf("failed to open /proc/thread-self/fail-nth");
 	char buf[16];
-	sprintf(buf, "%d", nth + 1);
+	sprintf(buf, "%d", nth);
 	if (write(fd, buf, strlen(buf)) != (ssize_t)strlen(buf))
 		exitf("failed to write /proc/thread-self/fail-nth");
 	return fd;
@@ -10549,9 +10568,8 @@ static void loop(void)
 			if (current_time_ms() - start < program_timeout_ms)
 				continue;
 #else
-		if (current_time_ms() - start < /*{{{PROGRAM_TIMEOUT_MS}}}*/) {
+		if (current_time_ms() - start < /*{{{PROGRAM_TIMEOUT_MS}}}*/)
 			continue;
-		}
 #endif
 			debug("killing hanging pid %d\n", pid);
 			kill_and_wait(pid, &status);

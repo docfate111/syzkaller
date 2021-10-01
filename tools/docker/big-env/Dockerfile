@@ -31,7 +31,7 @@ FROM gcr.io/syzkaller/env
 #	create-image.sh -a s390x -d buster
 
 RUN dpkg --add-architecture i386 && \
-	apt-get update && \
+	apt-get update --allow-releaseinfo-change && \
 	DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
 	# required to build root images.
 	debootstrap ssh-tools qemu-user-static \
@@ -52,6 +52,14 @@ RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud
 ENV PATH /usr/local/google-cloud-sdk/bin:$PATH
 RUN gcloud components install --quiet app-engine-python app-engine-go cloud-datastore-emulator
 RUN chmod 0777 /usr/local/google-cloud-sdk
+
+# Install Go 1.12 for local testing of the appengine app build.
+# Appengine should be using Go 1.11, but the build fails with 1.11,
+# so we use 1.12 as the best working approximation.
+RUN go get golang.org/dl/go1.12@latest
+# The following command downloads Go into HOME,
+# so we need to use HOME value we will be using later.
+RUN HOME=/syzkaller go1.12 download
 
 RUN echo "export PS1='syz-big-env🈶 '" > /syzkaller/.bashrc
 ENV SYZ_BIG_ENV yes

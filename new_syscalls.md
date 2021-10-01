@@ -1,0 +1,12 @@
+uffd.txt:
+	required:
+		userfaultfd
+		ioctl$UFFDIO_API
+		ioctl$UFFDIO_REGISTER
+		ioctl$UFFDIO_UNREGISTER
+		ioctl$UFFDIO_WAKE
+		ioctl$UFFDIO_COPY
+		ioctl$UFFDIO_ZEROPAGE
+	added:
+		ioctl$UFFDIO_WRITEPROTECT
+		ioctl$UFFDIO_CONTINUE	

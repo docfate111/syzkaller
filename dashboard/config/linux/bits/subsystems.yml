@@ -96,7 +96,7 @@ config:
  - MEM_SOFT_DIRTY: [x86_64]
  - ZSWAP
  - ZSMALLOC
- - IDLE_PAGE_TRACKING
+ - IDLE_PAGE_TRACKING: [-v5.14] # TODO: -v5.15 when released
  - ZONE_DEVICE: [-arm, -riscv, -s390]
  - DEVICE_PRIVATE: [-arm, -riscv, -s390]
  - PERCPU_STATS
@@ -636,7 +636,7 @@ config:
  - E100: [-s390]
  - E1000E: [-s390]
  - NET_VENDOR_GOOGLE
- - GVE
+ - GVE: [-arm, -riscv, -s390]
  - NET_VENDOR_3COM: n
  - NET_VENDOR_ADAPTEC: n
  - NET_VENDOR_AGERE: n
@@ -771,6 +771,7 @@ config:
  - DRM_VKMS
  - DRM_VMWGFX: [x86_64]
  - DRM_VMWGFX_FBCON: [x86_64]
+ - DRM_FBDEV_EMULATION: [x86_64] # required by DRM_VMWGFX_FBCON
  - DRM_UDL
  - DRM_BOCHS
  - DRM_VIRTIO_GPU
@@ -1046,7 +1047,7 @@ config:
  - CRC4
  - CRC7
  - SCHEDSTATS
- - RAW_DRIVER
+ - RAW_DRIVER: [-v5.14]
  - THERMAL: [v5.8]
  - THERMAL_NETLINK: [v5.8]
  - VMWARE_VMCI: [x86_64]

@@ -2512,9 +2512,8 @@ static bool process_command_pkt(int fd, char* buf, ssize_t buf_size)
 {
 	struct hci_command_hdr* hdr = (struct hci_command_hdr*)buf;
 	if (buf_size < (ssize_t)sizeof(struct hci_command_hdr) ||
-	    hdr->plen != buf_size - sizeof(struct hci_command_hdr)) {
+	    hdr->plen != buf_size - sizeof(struct hci_command_hdr))
 		failmsg("process_command_pkt: invalid size", "suze=%zx", buf_size);
-	}
 
 	switch (hdr->opcode) {
 	case HCI_OP_WRITE_SCAN_ENABLE: {
@@ -2961,7 +2960,7 @@ error_clear_loop:
 #elif GOARCH_ppc64 || GOARCH_ppc64le
 #include "common_kvm_ppc64.h"
 #elif !GOARCH_arm
-static long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
+static volatile long syz_kvm_setup_cpu(volatile long a0, volatile long a1, volatile long a2, volatile long a3, volatile long a4, volatile long a5, volatile long a6, volatile long a7)
 {
 	return 0;
 }
@@ -4283,7 +4282,7 @@ static int inject_fault(int nth)
 	if (fd == -1)
 		exitf("failed to open /proc/thread-self/fail-nth");
 	char buf[16];
-	sprintf(buf, "%d", nth + 1);
+	sprintf(buf, "%d", nth);
 	if (write(fd, buf, strlen(buf)) != (ssize_t)strlen(buf))
 		exitf("failed to write /proc/thread-self/fail-nth");
 	return fd;

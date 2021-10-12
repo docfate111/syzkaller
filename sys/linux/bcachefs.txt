@@ -15,7 +15,10 @@ ioctl$BCH_IOCTL_DISK_SET_STATE(fd fd, cmd const[BCH_IOCTL_DISK_SET_STATE], arg p
 ioctl$BCH_IOCTL_DATA(fd fd, cmd const[BCH_IOCTL_DATA], arg ptr[in, bch_ioctl_data])
 ioctl$BCH_IOCTL_DISK_RESIZE(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE], arg ptr[in, bch_ioctl_disk_resize])
 ioctl$BCH_IOCTL_DISK_RESIZE_JOURNAL(fd fd, cmd const[BCH_IOCTL_DISK_RESIZE_JOURNAL], arg ptr[in, bch_ioctl_disk_resize_journal])
-
+ioctl$BCH_IOCTL_SUBVOLUME_CREATE(fd fd, cmd const[BCH_IOCTL_SUBVOLUME_CREATE], arg[in, bch_ioctl_subvolume])
+ioctl$BCH_IOCTL_SUBVOLUME_DESTROY(fd fd, cmd const[BCH_IOCTL_SUBVOLUME_DESTROY], arg[in, bch_ioctl_subvolume])
+ioctl$BCHFS_IOC_REINHERIT_ATTRS(fd fd, cmd const[BCHFS_IOC_REINHERIT_ATTRS], arg ptr[in, int64])
+ioctl$FS_IOC_GOINGDOWN(fd fd, cmd const[FS_IOC_GOINGDOWN], arg[in, bfsdownflags])
 
 bch_ioctl_fs_usage {
 	capacity int64
@@ -119,3 +122,14 @@ bch_ioctl_disk_resize_journal {
 	dev int64
 	nbuckets int64
 }
+
+bch_ioctl_subvolume {
+	flags int32
+	dirfd int32
+	mode int16
+	pad array[int16, 3]
+	dst_ptr ptr[in, string]
+	src_ptr ptr[in, string]
+}
+
+bfsdownflags = FSOP_GOING_FLAGS_NOLOGFLUSH  | FSOP_GOING_FLAGS_LOGFLUSH | FSOP_GOING_FLAGS_DEFAULT

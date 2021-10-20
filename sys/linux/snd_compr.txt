@@ -2,10 +2,11 @@ include <uapi/asm/ioctl.h>
 include <uapi/linux/time.h>
 include <linux/poll.h>
 include <sound/core.h>
+include <uapi/sound/compress_offload.h>
 
 resource fd_sndcmpr[fd]
 
-syz_open_dev$sndcmpr(fd const[AT_FDCWD], file ptr[in, string["/dev/comprC#D#"]], flags flags[open_flags]) fd_sndcmpr
+syz_open_dev$sndcmpr(file ptr[in, string["/dev/comprC#D#"]], flags flags[open_flags]) fd_sndcmpr
 write$sndcmpr(fd fd_sndcmpr, buffer ptr[in, array[int64]], len bytesize[buffer])
 read$sndcmpr(fd fd_sndcmpr, buffer ptr[out, array[int64]], len bytesize[buffer])
 close$sndcmpr(fd fd_sndcmpr)

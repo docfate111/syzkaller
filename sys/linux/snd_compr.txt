@@ -1,0 +1,86 @@
+include <uapi/asm/ioctl.h>
+include <uapi/linux/time.h>
+include <linux/poll.h>
+include <sound/core.h>
+
+resource fd_sndcmpr[fd]
+
+suz_open_dev$sndcmpr(fd const[AT_FDCWD], file ptr[in, string["/dev/comprC#D#"]], flags flags[open_flags]) fd_sndcmpr
+write$sndcmpr(fd fd_sndcmpr, buffer ptr[in, array[int64]], len bytesize[buffer])
+read$sndcmpr(fd fd_sndcmpr, buffer ptr[out, array[int64], len bytesize[buffer])
+close$sndcmpr(fd fd_sndcmpr)
+poll$sndcmpr(fds ptr[in, array[fd_sndcmpr]], nfds len[fd_sndcmpr], timeout int32)
+
+ioctl$SNDRV_COMPRESS_IOCTL_VERSION(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_IOCTL_VERSION], arg ptr[out, int64])
+ioctl$SNDRV_COMPRESS_GET_CAPS(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_GET_CAPS], arg ptr[out, snd_compr_caps])
+ioctl$SNDRV_COMPRESS_GET_CODEC_CAPS(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_GET_CODEC_CAPS], arg ptr[out,  snd_compr_codec_caps])
+ioctl$SNDRV_COMPRESS_SET_PARAMS(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_SET_PARAMS], arg ptr[in, snd_compr_params])
+ioctl$SNDRV_COMPRESS_GET_PARAMS(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_GET_PARAMS], arg ptr[out, snd_codec])
+ioctl$SNDRV_COMPRESS_SET_METADATA(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_SET_METADATA],arg ptr[in, snd_compr_metadata])
+ioctl$SNDRV_COMPRESS_GET_METADATA(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_GET_METADATA], arg ptr[in, snd_compr_metadata])
+ioctl$SNDRV_COMPRESS_TSTAMP(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_TSTAMP], arg ptr[out, snd_compr_tstamp])
+ioctl$SNDRV_COMPRESS_AVAIL(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_AVAIL], arg ptr[out, snd_compr_avail])
+ioctl$SNDRV_COMPRESS_PAUSE(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_PAUSE], arg const[0])
+ioctl$SNDRV_COMPRESS_RESUME(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_RESUME], arg const[0])
+ioctl$SNDRV_COMPRESS_START(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_START], arg const[0])
+ioctl$SNDRV_COMPRESS_STOP(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_STOP)], arg const[0])
+ioctl$SNDRV_COMPRESS_DRAIN(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_DRAIN], arg const[0])
+ioctl$SNDRV_COMPRESS_PARTIAL_DRAIN(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_PARTIAL_DRAIN], arg const[0])
+ioctl$SNDRV_COMPRESS_NEXT_TRACK(fd fd_sndcmpr, cmd const[SNDRV_COMPRESS_NEXT_TRACK], arg const[0])
+
+snd_compr_caps {
+	num_codecs int32
+	direction int32
+	min_fragment_size int32
+	max_fragment_size int32
+	min_fragments int32
+	max_fragments int32
+	codecs array[int32; 32]
+	reserved array[int32; 11]
+}
+
+snd_compr_codec_caps {
+	codec int32
+	num_descriptors int32
+	snd_codec_desc array[int32; 32]
+}
+
+snd_compr_params {
+	buffer snd_compressed_buffer
+	codec snd_codec
+	no_wake_mode int8
+}
+
+snd_compr_metadata {
+	 key int32
+	 value array[int32; 8]
+}
+
+snd_compr_tstamp {
+	byte_offset int32
+	copied_total int32
+	pcm_frames int32
+	pcm_io_frames int32
+	sampling_rate int32
+}
+
+snd_compr_avail {
+	avail int64
+	tstamp snd_compr_tstamp
+}
+
+snd_codec {
+	id int32
+	ch_in int32
+	ch_out int32
+	sample_rate int32
+	bit_rate int32
+	rate_control int32
+	profile int32
+	level int32
+	ch_mode int32
+	format int32
+	align int32
+	options snd_codec_options
+	reserved array[int32; 3]
+}

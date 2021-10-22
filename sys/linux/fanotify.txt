@@ -8,6 +8,10 @@ resource fd_fanotify[fd]
 
 fanotify_init(flags flags[fanotify_flags], events flags[fanotify_events]) fd_fanotify
 fanotify_mark(fd fd_fanotify, flags flags[fanotify_mark], mask flags[fanotify_mask], fddir fd_dir, path ptr[in, filename])
+write$fanotify(fd fd_fanotify, data ptr[in, array[int64]], len bytesize[data])
+read$fanotify(fd fd_fanotify, data ptr[out, array[int64]], len bytesize[data])
+close$fanotify(fd fd_fanotify)
+ioctl$FIONREAD(fd fd_fanotify, cmd const[FIONREAD], arg ptr[out, int64])
 
 fanotify_flags = FAN_CLASS_PRE_CONTENT, FAN_CLASS_CONTENT, FAN_CLASS_NOTIF, FAN_CLOEXEC, FAN_NONBLOCK, FAN_UNLIMITED_QUEUE, FAN_UNLIMITED_MARKS, FAN_ENABLE_AUDIT
 # Not providing O_WRONLY means O_RDONLY.
